@@ -1,0 +1,16 @@
+{
+  "name": "wch-typescript",
+  "version": "0.1.0",
+  "main": "js/index",
+  "scripts": {
+    "build": "coffee-build src -o js"
+  },
+  "dependencies": {
+    "fsx": "aleclarson/fsx#1.7.0",
+    "wch": "^0.8.0"
+  },
+  "devDependencies": {
+    "coffeescript": "^2.3.0",
+    "wch-coffee": "*"
+  }
+}
