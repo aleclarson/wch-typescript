@@ -68,7 +68,7 @@ module.exports = (log) ->
 
     changes = pack.stream 'src', watchOptions
     changes.on 'data', (file) ->
-      file.dest = path.join pack.dest, file.name
+      file.dest = path.join pack.dest, file.name.replace /\.ts$/, '.js'
       action = file.exists and build or clear
       try await action.call pack, file
       catch err
