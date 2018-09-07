@@ -7,7 +7,6 @@ fs = require 'fsx'
 module.exports = (log) ->
   ts = require 'typescript'
   dts = require 'dts-generator'
-  debug = log.debug 'typescript'
 
   shortPath = (path) ->
     path.replace process.env.HOME, '~'
@@ -16,7 +15,7 @@ module.exports = (log) ->
     try mtime = fs.stat(file.dest).mtime.getTime()
     return if mtime and mtime > file.mtime_ms
 
-    debug 'Transpiling:', shortPath file.path
+    log 'Transpiling:', shortPath file.path
     try
       result = ts.transpileModule file.path, @tsconfig
 
@@ -26,13 +25,13 @@ module.exports = (log) ->
         project: pack.path
         out: pack.dts
 
-      debug 'Generated:', shortPath pack.dts
+      log 'Generated:', shortPath pack.dts
 
       return [result.outputText, file]
 
     catch err
-      debug log.red('Failed to compile:'), shortPath file.path
-      debug err.stack
+      log log.red('Failed to compile:'), shortPath file.path
+      log err.stack
       return
 
   build = wch.pipeline()
@@ -54,11 +53,13 @@ module.exports = (log) ->
 
   attach: (pack) ->
     if !pack.main
-      return # TODO: Emit a warning
+      log.warn "Missing 'main' field: #{shortPath pack.path}"
+      return
 
     cfgPath = path.join pack.path, 'tsconfig.json'
     if !fs.isFile cfgPath
-      return # TODO: Emit a warning
+      log.warn "Missing 'tsconfig.json' file: #{shortPath pack.path}"
+      return
 
     pack.tsconfig = require cfgPath
     pack.dest = path.dirname path.resolve(pack.path, pack.main)
@@ -70,5 +71,5 @@ module.exports = (log) ->
       action = file.exists and build or clear
       try await action.call pack, file
       catch err
-        debug log.red('Error while processing:'), shortPath file.path
-        debug err.stack
+        log log.red('Error while processing:'), shortPath file.path
+        log err.stack
