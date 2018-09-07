@@ -22,11 +22,11 @@ module.exports = (log) ->
 
       # Generate the typings.
       dts.default
-        name: pack.name
-        project: pack.path
-        out: pack.dts
+        name: @name
+        project: @path
+        out: @dts
 
-      log 'Generated:', shortPath pack.dts
+      log 'Generated:', shortPath @dts
 
       return [result.outputText, file]
 
