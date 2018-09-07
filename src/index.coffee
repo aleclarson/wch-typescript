@@ -2,9 +2,11 @@ path = require 'path'
 wch = require 'wch'
 fs = require 'fsx'
 
+# TODO: source maps
 # TODO: use desired typescript version per package
 module.exports = (log) ->
   ts = require 'typescript'
+  dts = require 'dts-generator'
   debug = log.debug 'typescript'
 
   shortPath = (path) ->
@@ -15,8 +17,17 @@ module.exports = (log) ->
     return if mtime and mtime > file.mtime_ms
 
     debug 'Transpiling:', shortPath file.path
-    try # TODO: source maps
+    try
       result = ts.transpileModule file.path, @tsconfig
+
+      # Generate the typings.
+      dts.default
+        name: pack.name
+        project: pack.path
+        out: pack.dts
+
+      debug 'Generated:', shortPath pack.dts
+
       return [result.outputText, file]
 
     catch err
@@ -50,11 +61,12 @@ module.exports = (log) ->
       return # TODO: Emit a warning
 
     pack.tsconfig = require cfgPath
-    dest = path.dirname path.resolve(pack.path, pack.main)
+    pack.dest = path.dirname path.resolve(pack.path, pack.main)
+    pack.dts = pack.dest.replace(/\.js$/, '') + '.d.ts'
 
     changes = pack.stream 'src', watchOptions
     changes.on 'data', (file) ->
-      file.dest = path.join dest, file.name
+      file.dest = path.join pack.dest, file.name
       action = file.exists and build or clear
       try await action.call pack, file
       catch err
