@@ -17,7 +17,8 @@ module.exports = (log) ->
 
     log 'Transpiling:', shortPath file.path
     try
-      result = ts.transpileModule file.path, @tsconfig
+      input = fs.readFile file.path
+      result = ts.transpileModule input, @tsconfig
 
       # Generate the typings.
       dts.default
