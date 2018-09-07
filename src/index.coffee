@@ -63,8 +63,8 @@ module.exports = (log) ->
       return
 
     pack.tsconfig = require cfgPath
-    pack.dest = path.dirname path.resolve(pack.path, pack.main)
-    pack.dts = pack.dest.replace(/\.js$/, '') + '.d.ts'
+    pack.dest = path.dirname path.join(pack.path, pack.main)
+    pack.dts = path.join pack.path, pack.main.replace(/\.js$/, '') + '.d.ts'
 
     changes = pack.stream 'src', watchOptions
     changes.on 'data', (file) ->
