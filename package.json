@@ -2,6 +2,11 @@
   "name": "wch-typescript",
   "version": "0.1.1",
   "main": "js/index",
+  "repository": "aleclarson/wch-typescript",
+  "description": "TypeScript transpiler for wchd",
+  "files": [
+    "js"
+  ],
   "scripts": {
     "build": "coffee-build src -o js"
   },
