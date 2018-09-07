@@ -8,6 +8,7 @@
   "dependencies": {
     "dts-generator": "^2.1.0",
     "fsx": "aleclarson/fsx#1.7.0",
+    "typescript": "^3.0.3",
     "wch": "^0.8.0"
   },
   "devDependencies": {
