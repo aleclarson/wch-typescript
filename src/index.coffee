@@ -6,7 +6,6 @@ fs = require 'fsx'
 # TODO: use desired typescript version per package
 module.exports = (log) ->
   ts = require 'typescript'
-  dts = require 'dts-generator'
 
   shortPath = (path) ->
     path.replace process.env.HOME, '~'
@@ -17,18 +16,9 @@ module.exports = (log) ->
 
     log 'Transpiling:', shortPath file.path
     try
-      input = fs.readFile file.path
-      result = ts.transpileModule input, @tsconfig
-
-      # Generate the typings.
-      dts.default
-        name: @name
-        project: @path
-        out: @dts
-
-      log 'Generated:', shortPath @dts
-
-      return [result.outputText, file]
+      program = ts.createProgram [file.path], @config
+      program.emit program.getSourceFile file.path
+      return file
 
     catch err
       log log.red('Failed to compile:'), shortPath file.path
@@ -37,9 +27,10 @@ module.exports = (log) ->
 
   build = wch.pipeline()
     .map compile
-    .save (file) -> file.dest
-    .each (dest, file) ->
-      wch.emit 'file:build', {file: file.path, dest}
+    .each (file) ->
+      file and wch.emit 'file:build',
+        file: file.path
+        dest: file.dest
 
   clear = wch.pipeline()
     .delete (file) -> file.dest
@@ -62,15 +53,29 @@ module.exports = (log) ->
       log.warn "Missing 'tsconfig.json' file: #{shortPath pack.path}"
       return
 
-    pack.tsconfig = require cfgPath
-    pack.dest = path.dirname path.join(pack.path, pack.main)
-    pack.dts = path.join pack.path, pack.main.replace(/\.js$/, '') + '.d.ts'
+    pack.config = tsconfig =
+      require(cfgPath).compilerOptions or {}
 
-    changes = pack.stream 'src', watchOptions
-    changes.on 'data', (file) ->
-      file.dest = path.join pack.dest, file.name.replace /\.ts$/, '.js'
+    dest = tsconfig.outDir or
+      path.dirname path.join(pack.path, pack.main)
+
+    tsconfig.outDir or= dest
+    tsconfig.noResolve = true
+    tsconfig.isolatedModules = true
+    delete tsconfig.moduleResolution
+
+    roots = tsconfig.rootDirs or [tsconfig.rootDir]
+    if roots[0] == undefined
+      log.warn "Missing 'rootDir' or 'rootDirs' option: #{shortPath cfgPath}"
+      return
+
+    onChange = (file) ->
+      file.dest = path.join dest, file.name.replace /\.ts$/, '.js'
       action = file.exists and build or clear
       try await action.call pack, file
       catch err
         log log.red('Error while processing:'), shortPath file.path
         log err.stack
+
+    roots.forEach (root) ->
+      pack.stream(root, watchOptions).on('data', onChange)
