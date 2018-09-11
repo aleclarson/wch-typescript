@@ -17,7 +17,10 @@ module.exports = (log) ->
     log 'Transpiling:', shortPath file.path
     try
       program = ts.createProgram [file.path], @config
-      program.emit program.getSourceFile file.path
+      source = program.getSourceFile file.path
+      program.emit source
+      if @config.declaration
+        program.emit source, null, null, true
       return file
 
     catch err
