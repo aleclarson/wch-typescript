@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "fsx": "aleclarson/fsx#1.7.0",
-    "typescript": "^3.0.3"
+    "typescript": "^3.1.6"
   },
   "devDependencies": {
     "coffeescript": "^2.3.0",
