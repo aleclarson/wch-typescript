@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "fsx": "aleclarson/fsx#1.7.0",
-    "typescript": "^3.0.3",
-    "wch": "^0.8.0"
+    "typescript": "^3.0.3"
   },
   "devDependencies": {
     "coffeescript": "^2.3.0",
     "wch-coffee": "*"
+  },
+  "peerDependencies": {
+    "wch": "^0.10.0"
   }
 }
