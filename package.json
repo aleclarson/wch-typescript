@@ -11,7 +11,7 @@
     "build": "coffee-build src -o js"
   },
   "dependencies": {
-    "fsx": "aleclarson/fsx#1.7.0",
+    "fsx": "aleclarson/fsx#1.9.0",
     "typescript": "^3.1.6"
   },
   "devDependencies": {
