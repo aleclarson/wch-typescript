@@ -15,7 +15,7 @@
     "typescript": "^3.1.6"
   },
   "devDependencies": {
-    "coffeescript": "2.3.2",
+    "coffeescript": "2.5.1",
     "wch-coffee": "*"
   },
   "peerDependencies": {
